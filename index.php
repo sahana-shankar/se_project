@@ -1,92 +1,114 @@
-<?php require_once('../config.php'); ?>
- <!DOCTYPE html>
-<html lang="en" class="" style="height: auto;">
-<?php require_once('inc/header.php') ?>
-  <body class="sidebar-mini layout-fixed control-sidebar-slide-open layout-navbar-fixed sidebar-mini-md sidebar-mini-xs text-sm" data-new-gr-c-s-check-loaded="14.991.0" data-gr-ext-installed="" style="height: auto;">
-    <div class="wrapper">
-     <?php require_once('inc/topBarNav.php') ?>
-     <?php require_once('inc/navigation.php') ?>
-     <?php if($_settings->chk_flashdata('success')): ?>
-    <script>
-      alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
-    </script>
-    <?php endif;?>      
-     <?php $page = isset($_GET['page']) ? $_GET['page'] : 'home';  ?>
-      <!-- Content Wrapper. Contains page content -->
-      <div class="content-wrapper  pt-3" style="min-height: 567.854px;">
-     
-        <!-- Main content -->
-        <section class="content  text-dark">
-          <div class="container-fluid">
-            <?php 
-              if(!file_exists($page.".php") && !is_dir($page)){
-                  include '404.html';
-              }else{
-                if(is_dir($page))
-                  include $page.'/index.php';
-                else
-                  include $page.'.php';
 
-              }
-            ?>
-          </div>
-        </section>
-        <!-- /.content -->
-  <div class="modal fade" id="confirm_modal" role='dialog'>
-    <div class="modal-dialog modal-md modal-dialog-centered" role="document">
-      <div class="modal-content rounded-0">
-        <div class="modal-header">
-        <h5 class="modal-title">Confirmation</h5>
-      </div>
-      <div class="modal-body">
-        <div id="delete_content"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary rounded-0" id='confirm' onclick="">Continue</button>
-        <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Close</button>
-      </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal fade" id="uni_modal" role='dialog'>
-    <div class="modal-dialog modal-md modal-dialog-centered" role="document">
-      <div class="modal-content rounded-0">
-        <div class="modal-header">
-        <h5 class="modal-title"></h5>
-      </div>
-      <div class="modal-body">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary rounded-0" id='submit' onclick="$('#uni_modal form').submit()">Save</button>
-        <button type="button" class="btn btn-secondary rounded-0" data-dismiss="modal">Cancel</button>
-      </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal fade" id="uni_modal_right" role='dialog'>
-    <div class="modal-dialog modal-full-height  modal-md" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-        <h5 class="modal-title"></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span class="fa fa-arrow-right"></span>
-        </button>
-      </div>
-      <div class="modal-body">
-      </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal fade" id="viewer_modal" role='dialog'>
-    <div class="modal-dialog modal-md" role="document">
-      <div class="modal-content">
-              <button type="button" class="btn-close" data-dismiss="modal"><span class="fa fa-times"></span></button>
-              <img src="" alt="">
-      </div>
-    </div>
-  </div>
-      </div>
-      <!-- /.content-wrapper -->
-      <?php require_once('inc/footer.php') ?>
-  </body>
-</html>
+<?php if($_settings->chk_flashdata('success')): ?>
+<script>
+	alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
+</script>
+<?php endif;?>
+<div class="card card-outline rounded-0 card-navy">
+	<div class="card-header">
+		<h3 class="card-title">List of Vehicle Categories</h3>
+		<div class="card-tools">
+			<a href="javascript:void(0)" id="create_new" class="btn btn-flat btn-primary"><span class="fas fa-plus"></span>  Create New</a>
+		</div>
+	</div>
+	<div class="card-body">
+        <div class="container-fluid">
+			<table class="table table-hover table-striped table-bordered" id="list">
+				<colgroup>
+					<col width="5%">
+					<col width="15%">
+					<col width="50%">
+					<col width="15%">
+					<col width="15%">
+				</colgroup>
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Date Created</th>
+						<th>Name</th>
+						<th>Status</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php 
+					$i = 1;
+						$qry = $conn->query("SELECT * from `category_list` where delete_flag = 0 order by abs(`name`) asc, `name` asc ");
+						while($row = $qry->fetch_assoc()):
+					?>
+						<tr>
+							<td class="text-center"><?php echo $i++; ?></td>
+							<td><?php echo date("Y-m-d H:i",strtotime($row['date_created'])) ?></td>
+							<td><?php echo $row['name'] ?></td>
+							<td class="text-center">
+                                <?php if($row['status'] == 1): ?>
+                                    <span class="badge badge-success px-3 rounded-pill">Active</span>
+                                <?php else: ?>
+                                    <span class="badge badge-danger px-3 rounded-pill">Inactive</span>
+                                <?php endif; ?>
+                            </td>
+							<td align="center">
+								 <button type="button" class="btn btn-flat p-1 btn-default btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown">
+				                  		Action
+				                    <span class="sr-only">Toggle Dropdown</span>
+				                  </button>
+				                  <div class="dropdown-menu" role="menu">
+				                    <a class="dropdown-item view_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-eye text-dark"></span> View</a>
+				                    <div class="dropdown-divider"></div>
+				                    <a class="dropdown-item edit_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-edit text-primary"></span> Edit</a>
+				                    <div class="dropdown-divider"></div>
+				                    <a class="dropdown-item delete_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-trash text-danger"></span> Delete</a>
+				                  </div>
+							</td>
+						</tr>
+					<?php endwhile; ?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<script>
+	$(document).ready(function(){
+		$('.delete_data').click(function(){
+			_conf("Are you sure to delete this Category permanently?","delete_category",[$(this).attr('data-id')])
+		})
+		$('#create_new').click(function(){
+			uni_modal("<i class='fa fa-plus'></i> Add New Category","categories/manage_category.php")
+		})
+		$('.view_data').click(function(){
+			uni_modal("<i class='fa fa-bars'></i> Category Details","categories/view_category.php?id="+$(this).attr('data-id'))
+		})
+		$('.edit_data').click(function(){
+			uni_modal("<i class='fa fa-edit'></i> Update Category Details","categories/manage_category.php?id="+$(this).attr('data-id'))
+		})
+		$('.table').dataTable({
+			columnDefs: [
+					{ orderable: false, targets: [4] }
+			],
+			order:[0,'asc']
+		});
+		$('.dataTable td,.dataTable th').addClass('py-1 px-2 align-middle')
+	})
+	function delete_category($id){
+		start_loader();
+		$.ajax({
+			url:_base_url_+"classes/Master.php?f=delete_category",
+			method:"POST",
+			data:{id: $id},
+			dataType:"json",
+			error:err=>{
+				console.log(err)
+				alert_toast("An error occured.",'error');
+				end_loader();
+			},
+			success:function(resp){
+				if(typeof resp== 'object' && resp.status == 'success'){
+					location.reload();
+				}else{
+					alert_toast("An error occured.",'error');
+					end_loader();
+				}
+			}
+		})
+	}
+</script>
